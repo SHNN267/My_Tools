@@ -3,7 +3,7 @@
 #include <iostream>
 
 unsigned char shellcode[] = {
-    0x90, 0x90, 0x90, 0x90 // مثال: NOP (ضع شيل كود حقيقي)
+    0x90, 0x90, 0x90, 0x90 
 };
 
 int main() {
